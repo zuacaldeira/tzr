@@ -20,7 +20,17 @@ import { FormsModule } from '@angular/forms';
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
         </div>
+        <button class="hamburger-btn" (click)="toggleMobileMenu()" aria-label="Menü">
+          {{ mobileMenuOpen() ? '✕' : '☰' }}
+        </button>
       </div>
+      @if (mobileMenuOpen()) {
+        <div class="mobile-menu">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">Start</a>
+          <a routerLink="/bereiche" routerLinkActive="active" (click)="closeMobileMenu()">Bereiche</a>
+          <button class="mobile-search-btn" (click)="toggleSearch(); closeMobileMenu()">Suche</button>
+        </div>
+      }
       @if (searchOpen()) {
         <div class="search-overlay">
           <div class="container">
@@ -61,6 +71,11 @@ import { FormsModule } from '@angular/forms';
       transition: color 0.2s;
     }
     .search-btn:hover { color: var(--ink); }
+    .hamburger-btn {
+      display: none; font-size: 1.3rem; background: none; border: none;
+      color: var(--ink-light); cursor: pointer; padding: 0.3rem;
+    }
+    .mobile-menu { display: none; }
     .search-overlay {
       position: absolute; top: 52px; left: 0; right: 0;
       background: #fff; border-bottom: 1px solid var(--border);
@@ -79,16 +94,38 @@ import { FormsModule } from '@angular/forms';
     .close-btn { background: none; font-size: 1rem; color: var(--ink-light); padding: 0.5rem; }
     @media (max-width: 640px) {
       .brand-sub { display: none; }
+      .navbar-links { display: none; }
+      .hamburger-btn { display: block; }
+      .mobile-menu {
+        display: block; position: absolute; top: 52px; left: 0; right: 0;
+        background: #fff; border-bottom: 1px solid var(--border);
+        padding: 0.8rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      }
+      .mobile-menu a, .mobile-search-btn {
+        display: block; padding: 0.6rem 0; font-size: 0.9rem; font-weight: 600;
+        color: var(--ink-light); text-decoration: none; transition: color 0.2s;
+        background: none; border: none; font-family: inherit; cursor: pointer; text-align: left;
+      }
+      .mobile-menu a:hover, .mobile-menu a.active, .mobile-search-btn:hover { color: var(--ink); }
     }
   `]
 })
 export class NavbarComponent {
   searchOpen = signal(false);
+  mobileMenuOpen = signal(false);
   searchQuery = '';
   private router = inject(Router);
 
   toggleSearch() {
     this.searchOpen.update(v => !v);
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen.set(false);
   }
 
   onSearch() {

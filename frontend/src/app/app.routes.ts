@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 
 export const routes: Routes = [
   {
@@ -26,8 +27,8 @@ export const routes: Routes = [
         children: [
           { path: '', loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent) },
           { path: 'beitraege', loadComponent: () => import('./admin/articles/article-list/article-list.component').then(m => m.ArticleListComponent) },
-          { path: 'beitraege/neu', loadComponent: () => import('./admin/articles/article-form/article-form.component').then(m => m.ArticleFormComponent) },
-          { path: 'beitraege/:id/bearbeiten', loadComponent: () => import('./admin/articles/article-form/article-form.component').then(m => m.ArticleFormComponent) },
+          { path: 'beitraege/neu', loadComponent: () => import('./admin/articles/article-form/article-form.component').then(m => m.ArticleFormComponent), canDeactivate: [unsavedChangesGuard] },
+          { path: 'beitraege/:id/bearbeiten', loadComponent: () => import('./admin/articles/article-form/article-form.component').then(m => m.ArticleFormComponent), canDeactivate: [unsavedChangesGuard] },
           { path: 'kategorien', loadComponent: () => import('./admin/categories/category-list/category-list.component').then(m => m.AdminCategoryListComponent) },
           { path: 'kategorien/neu', loadComponent: () => import('./admin/categories/category-form/category-form.component').then(m => m.CategoryFormComponent) },
           { path: 'kategorien/:id/bearbeiten', loadComponent: () => import('./admin/categories/category-form/category-form.component').then(m => m.CategoryFormComponent) },

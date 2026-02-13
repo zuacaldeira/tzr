@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { ArticleService } from '../../../core/services/article.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ArticleList } from '../../../core/models/article.model';
@@ -39,10 +40,27 @@ import { DateDePipe } from '../../../shared/pipes/date-de.pipe';
         </label>
       </div>
 
+      @if (selectedIds.size > 0) {
+        <div class="bulk-bar">
+          <span class="bulk-count">{{ selectedIds.size }} {{ selectedIds.size === 1 ? 'Beitrag' : 'Beiträge' }} ausgewählt</span>
+          <div class="bulk-actions">
+            <select class="bulk-select" (change)="bulkChangeStatus($event)">
+              <option value="" disabled selected>Status ändern</option>
+              <option value="DRAFT">Entwurf</option>
+              <option value="PUBLISHED">Veröffentlicht</option>
+              <option value="ARCHIVED">Archiviert</option>
+            </select>
+            <button class="bulk-btn danger" (click)="bulkDelete()">Löschen</button>
+            <button class="bulk-btn cancel" (click)="clearSelection()">Aufheben</button>
+          </div>
+        </div>
+      }
+
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
+              <th class="th-check"><input type="checkbox" [checked]="allSelected" (change)="toggleSelectAll($event)" /></th>
               <th>Status</th>
               <th>Titel</th>
               <th>Kategorie</th>
@@ -53,7 +71,8 @@ import { DateDePipe } from '../../../shared/pipes/date-de.pipe';
           </thead>
           <tbody>
             @for (a of articles(); track a.id) {
-              <tr>
+              <tr [class.row-selected]="selectedIds.has(a.id)">
+                <td class="td-check"><input type="checkbox" [checked]="selectedIds.has(a.id)" (change)="toggleSelect(a.id)" /></td>
                 <td><span class="dot" [class]="a.status.toLowerCase()"></span></td>
                 <td>
                   <a [routerLink]="['/admin/beitraege', a.id, 'bearbeiten']" class="title-link">{{ a.title }}</a>
@@ -93,11 +112,35 @@ import { DateDePipe } from '../../../shared/pipes/date-de.pipe';
     }
     .search-input { flex: 1; min-width: 150px; }
     .checkbox-label { font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; color: #787774; }
+
+    .bulk-bar {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem;
+      padding: 0.6rem 0.9rem; margin-bottom: 0.8rem;
+      background: #f0f8ff; border: 1px solid #b8d4e8; border-radius: 6px;
+    }
+    .bulk-count { font-size: 0.82rem; font-weight: 700; color: #1e1e2e; }
+    .bulk-actions { display: flex; gap: 0.5rem; align-items: center; }
+    .bulk-select {
+      padding: 0.35rem 0.6rem; border: 1px solid #e8e6e1; border-radius: 6px;
+      font-family: inherit; font-size: 0.78rem; outline: none; background: #fff; cursor: pointer;
+    }
+    .bulk-btn {
+      padding: 0.35rem 0.7rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid #e8e6e1; cursor: pointer; transition: all 0.15s;
+    }
+    .bulk-btn.danger { background: #fff0f0; color: #c24a4a; border-color: #e8c4c4; }
+    .bulk-btn.danger:hover { background: #fce6e6; color: #a03030; border-color: #c24a4a; }
+    .bulk-btn.cancel { background: #f7f6f3; color: #787774; }
+    .bulk-btn.cancel:hover { background: #e8e6e1; color: #37352f; }
+
     .table-wrapper { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e8e6e1; }
     th { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #787774; padding: 0.7rem 0.8rem; text-align: left; border-bottom: 1px solid #e8e6e1; background: #fafaf8; }
     td { padding: 0.6rem 0.8rem; font-size: 0.82rem; border-bottom: 1px solid #f1f0ec; }
     tr:hover td { background: #fafaf8; }
+    tr.row-selected td { background: #f0f8ff; }
+    .th-check, .td-check { width: 2rem; text-align: center; }
+    .th-check input, .td-check input { cursor: pointer; accent-color: #1e1e2e; }
     .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     .dot.draft { background: #b4b3af; }
     .dot.published { background: #3a9e7e; }
@@ -130,6 +173,9 @@ export class ArticleListComponent implements OnInit {
   filterAcademic = false;
   private searchTimeout: any;
 
+  selectedIds = new Set<number>();
+  allSelected = false;
+
   ngOnInit() {
     this.loadArticles();
     this.categoryService.getAllCategories().subscribe(c => this.categories.set(c));
@@ -144,6 +190,7 @@ export class ArticleListComponent implements OnInit {
     this.articleService.getAdminArticles(params).subscribe(res => {
       this.articles.set(res.content);
       this.totalPages.set(res.totalPages);
+      this.updateAllSelected();
     });
   }
 
@@ -154,12 +201,70 @@ export class ArticleListComponent implements OnInit {
 
   onPage(p: number) {
     this.page.set(p);
+    this.clearSelection();
     this.loadArticles();
   }
 
   deleteArticle(id: number) {
     if (confirm('Diesen Beitrag wirklich löschen?')) {
-      this.articleService.deleteArticle(id).subscribe(() => this.loadArticles());
+      this.articleService.deleteArticle(id).subscribe(() => {
+        this.selectedIds.delete(id);
+        this.loadArticles();
+      });
     }
+  }
+
+  toggleSelect(id: number) {
+    if (this.selectedIds.has(id)) this.selectedIds.delete(id);
+    else this.selectedIds.add(id);
+    this.updateAllSelected();
+  }
+
+  toggleSelectAll(event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.articles().forEach(a => this.selectedIds.add(a.id));
+    } else {
+      this.articles().forEach(a => this.selectedIds.delete(a.id));
+    }
+    this.updateAllSelected();
+  }
+
+  clearSelection() {
+    this.selectedIds.clear();
+    this.allSelected = false;
+  }
+
+  private updateAllSelected() {
+    const list = this.articles();
+    this.allSelected = list.length > 0 && list.every(a => this.selectedIds.has(a.id));
+  }
+
+  bulkChangeStatus(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const status = select.value;
+    if (!status || this.selectedIds.size === 0) return;
+    const count = this.selectedIds.size;
+    if (!confirm(`Status von ${count} ${count === 1 ? 'Beitrag' : 'Beiträgen'} ändern?`)) {
+      select.value = '';
+      return;
+    }
+    const ids = Array.from(this.selectedIds);
+    forkJoin(ids.map(id => this.articleService.changeStatus(id, status))).subscribe({
+      next: () => { this.clearSelection(); this.loadArticles(); },
+      error: () => this.loadArticles()
+    });
+    select.value = '';
+  }
+
+  bulkDelete() {
+    const count = this.selectedIds.size;
+    if (count === 0) return;
+    if (!confirm(`${count} ${count === 1 ? 'Beitrag' : 'Beiträge'} wirklich löschen?`)) return;
+    const ids = Array.from(this.selectedIds);
+    forkJoin(ids.map(id => this.articleService.deleteArticle(id))).subscribe({
+      next: () => { this.clearSelection(); this.loadArticles(); },
+      error: () => this.loadArticles()
+    });
   }
 }

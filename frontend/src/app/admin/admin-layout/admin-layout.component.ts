@@ -1,6 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-layout',
@@ -19,6 +21,9 @@ import { AuthService } from '../../core/services/auth.service';
           </a>
           <a routerLink="/admin/beitraege" routerLinkActive="active">
             <span class="icon">📝</span><span class="label">Beiträge</span>
+            @if (draftCount() > 0) {
+              <span class="draft-badge">{{ draftCount() }}</span>
+            }
           </a>
           <a routerLink="/admin/kategorien" routerLinkActive="active">
             <span class="icon">📂</span><span class="label">Kategorien</span>
@@ -79,6 +84,10 @@ import { AuthService } from '../../core/services/auth.service';
     .sidebar-nav a:hover, .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
     .sidebar-nav a.active { color: #fff; background: rgba(58,158,126,0.2); border-right: 3px solid #3a9e7e; }
     .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .draft-badge {
+      font-size: 0.6rem; font-weight: 700; background: #d4763e; color: #fff;
+      padding: 0.1rem 0.35rem; border-radius: 8px; margin-left: auto;
+    }
     .separator { height: 1px; background: rgba(255,255,255,0.08); margin: 0.8rem 0; }
     .main-area { flex: 1; margin-left: 240px; background: #f7f6f3; min-height: 100vh; transition: margin-left 0.2s; }
     .sidebar.collapsed ~ .main-area { margin-left: 60px; }
@@ -102,9 +111,18 @@ import { AuthService } from '../../core/services/auth.service';
     }
   `]
 })
-export class AdminLayoutComponent {
+export class AdminLayoutComponent implements OnInit {
   auth = inject(AuthService);
+  private http = inject(HttpClient);
   sidebarCollapsed = signal(false);
+  draftCount = signal(0);
+
+  ngOnInit() {
+    this.http.get<any>(`${environment.apiUrl}/admin/dashboard/stats`).subscribe({
+      next: (stats) => this.draftCount.set(stats.draftArticles || 0),
+      error: () => {}
+    });
+  }
 
   toggleSidebar() { this.sidebarCollapsed.update(v => !v); }
   logout() { this.auth.logout(); }

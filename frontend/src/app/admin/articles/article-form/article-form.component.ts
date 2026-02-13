@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { QuillModule } from 'ngx-quill';
+import { QuillModule, QuillEditorComponent } from 'ngx-quill';
 import { ArticleService } from '../../../core/services/article.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { AuthorService } from '../../../core/services/author.service';
@@ -41,14 +41,34 @@ import { Tag } from '../../../core/models/tag.model';
             <textarea [(ngModel)]="form.excerpt" rows="3" placeholder="Kurzbeschreibung für Karten und Vorschau…"></textarea>
           </div>
           <div class="field editor-field">
-            <label>Inhalt</label>
-            <quill-editor
-              [(ngModel)]="form.body"
-              [modules]="quillModules"
-              [styles]="{ minHeight: '400px' }"
-              placeholder="Artikel-Inhalt verfassen…"
-              format="html"
-            ></quill-editor>
+            <div class="editor-header">
+              <label>Inhalt</label>
+              <div class="editor-toolbar-extra">
+                <span class="reading-time-badge">~{{ estimatedReadingTime() }} Min. Lesezeit</span>
+                <button type="button" class="source-toggle" (click)="toggleHtmlSource()">
+                  {{ htmlSourceMode() ? 'Editor' : '&lt;/&gt; HTML' }}
+                </button>
+              </div>
+            </div>
+            @if (!htmlSourceMode()) {
+              <quill-editor
+                #quillEditor
+                [(ngModel)]="form.body"
+                [modules]="quillModules"
+                [styles]="{ minHeight: '400px' }"
+                placeholder="Artikel-Inhalt verfassen…"
+                format="html"
+                (onContentChanged)="onContentChanged()"
+              ></quill-editor>
+            } @else {
+              <textarea
+                class="html-source"
+                [(ngModel)]="form.body"
+                rows="20"
+                placeholder="HTML-Quellcode…"
+                (ngModelChange)="onContentChanged()"
+              ></textarea>
+            }
           </div>
         </div>
 
@@ -94,6 +114,10 @@ import { Tag } from '../../../core/models/tag.model';
                   {{ tag.name }}
                 </label>
               }
+            </div>
+            <div class="inline-tag-create">
+              <input type="text" [(ngModel)]="newTagName" placeholder="Neuer Tag…" (keydown.enter)="createTag()" />
+              <button type="button" (click)="createTag()" [disabled]="!newTagName.trim()">+</button>
             </div>
           </div>
 
@@ -162,8 +186,33 @@ import { Tag } from '../../../core/models/tag.model';
     .editor-field :host ::ng-deep .ql-editor h2 { font-family: 'Lora', serif; font-size: 1.2rem; font-weight: 600; margin: 1.2rem 0 0.5rem; }
     .editor-field :host ::ng-deep .ql-editor h3 { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 600; margin: 1rem 0 0.4rem; }
     .editor-field :host ::ng-deep .ql-editor blockquote { border-left: 3px solid #4a7fd4; background: #e6effb; padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
+    .editor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem; }
+    .editor-toolbar-extra { display: flex; align-items: center; gap: 0.5rem; }
+    .reading-time-badge { font-size: 0.7rem; color: #787774; background: #f7f6f3; padding: 0.2rem 0.5rem; border-radius: 4px; }
+    .source-toggle {
+      font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: 4px;
+      background: #f7f6f3; color: #787774; border: 1px solid #e8e6e1; cursor: pointer;
+    }
+    .source-toggle:hover { background: #e8e6e1; color: #37352f; }
+    .html-source {
+      width: 100%; padding: 0.8rem; border: 1px solid #e8e6e1; border-radius: 6px;
+      font-family: 'Courier New', monospace; font-size: 0.82rem; line-height: 1.6;
+      outline: none; resize: vertical; min-height: 400px;
+    }
+    .html-source:focus { border-color: #787774; }
     .tags-select { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .tag-option { font-size: 0.75rem; display: flex; align-items: center; gap: 0.2rem; padding: 0.2rem 0.4rem; background: #f7f6f3; border-radius: 4px; cursor: pointer; }
+    .inline-tag-create { display: flex; gap: 0.3rem; margin-top: 0.5rem; }
+    .inline-tag-create input {
+      flex: 1; padding: 0.3rem 0.5rem; border: 1px solid #e8e6e1; border-radius: 4px;
+      font-family: inherit; font-size: 0.75rem; outline: none;
+    }
+    .inline-tag-create input:focus { border-color: #787774; }
+    .inline-tag-create button {
+      padding: 0.3rem 0.6rem; background: #3a9e7e; color: #fff; border-radius: 4px;
+      font-size: 0.75rem; font-weight: 700; cursor: pointer;
+    }
+    .inline-tag-create button:disabled { opacity: 0.4; cursor: default; }
     .cover-preview { width: 100%; border-radius: 6px; margin: 0.5rem 0; }
     .toggle-row { display: flex; gap: 1rem; font-size: 0.8rem; }
     .toggle-row label { display: flex; align-items: center; gap: 0.3rem; }
@@ -178,11 +227,17 @@ export class ArticleFormComponent implements OnInit {
   private authorService = inject(AuthorService);
   private tagService = inject(TagService);
 
+  @ViewChild('quillEditor') quillEditor!: QuillEditorComponent;
+
   isEdit = signal(false);
   articleId = signal<number | null>(null);
   categories = signal<Category[]>([]);
   authors = signal<Author[]>([]);
   allTags = signal<Tag[]>([]);
+  htmlSourceMode = signal(false);
+  estimatedReadingTime = signal(0);
+  newTagName = '';
+  formDirty = false;
 
   quillModules = {
     toolbar: [
@@ -223,6 +278,7 @@ export class ArticleFormComponent implements OnInit {
           publishedDate: a.publishedDate || '', readingTimeMinutes: a.readingTimeMinutes,
           metaTitle: a.metaTitle || '', metaDescription: a.metaDescription || ''
         };
+        this.calculateReadingTime();
       });
     }
   }
@@ -248,16 +304,49 @@ export class ArticleFormComponent implements OnInit {
     this.form.tagIds = [...ids];
   }
 
+  toggleHtmlSource() {
+    this.htmlSourceMode.update(v => !v);
+  }
+
+  onContentChanged() {
+    this.formDirty = true;
+    this.calculateReadingTime();
+  }
+
+  calculateReadingTime() {
+    const text = (this.form.body || '').replace(/<[^>]*>/g, '').trim();
+    const words = text.split(/\s+/).filter(w => w.length > 0).length;
+    this.estimatedReadingTime.set(Math.max(1, Math.round(words / 200)));
+  }
+
+  createTag() {
+    const name = this.newTagName.trim();
+    if (!name) return;
+    this.tagService.createTag(name).subscribe({
+      next: (tag) => {
+        this.allTags.update(tags => [...tags, tag]);
+        this.form.tagIds = [...(this.form.tagIds || []), tag.id];
+        this.newTagName = '';
+      },
+      error: (err) => alert('Fehler: ' + (err.error?.message || err.message))
+    });
+  }
+
   save(status: string) {
     this.form.status = status;
     if (status === 'PUBLISHED' && !this.form.publishedDate) {
       this.form.publishedDate = new Date().toISOString().split('T')[0];
     }
+    this.calculateReadingTime();
+    this.form.readingTimeMinutes = this.estimatedReadingTime();
     const obs = this.isEdit()
       ? this.articleService.updateArticle(this.articleId()!, this.form)
       : this.articleService.createArticle(this.form);
     obs.subscribe({
-      next: () => this.router.navigate(['/admin/beitraege']),
+      next: () => {
+        this.formDirty = false;
+        this.router.navigate(['/admin/beitraege']);
+      },
       error: (err) => alert('Fehler beim Speichern: ' + (err.error?.message || err.message))
     });
   }

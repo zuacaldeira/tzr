@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { QuillModule } from 'ngx-quill';
 import { ArticleService } from '../../../core/services/article.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { AuthorService } from '../../../core/services/author.service';
@@ -13,7 +14,7 @@ import { Tag } from '../../../core/models/tag.model';
 @Component({
   selector: 'app-article-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, QuillModule],
   template: `
     <div class="form-page">
       <div class="form-header">
@@ -39,9 +40,15 @@ import { Tag } from '../../../core/models/tag.model';
             <label>Vorschautext (Excerpt)</label>
             <textarea [(ngModel)]="form.excerpt" rows="3" placeholder="Kurzbeschreibung für Karten und Vorschau…"></textarea>
           </div>
-          <div class="field">
-            <label>Inhalt (HTML)</label>
-            <textarea [(ngModel)]="form.body" rows="25" class="body-editor" placeholder="<p>Artikel-Inhalt als HTML…</p>"></textarea>
+          <div class="field editor-field">
+            <label>Inhalt</label>
+            <quill-editor
+              [(ngModel)]="form.body"
+              [modules]="quillModules"
+              [styles]="{ minHeight: '400px' }"
+              placeholder="Artikel-Inhalt verfassen…"
+              format="html"
+            ></quill-editor>
           </div>
         </div>
 
@@ -148,7 +155,13 @@ import { Tag } from '../../../core/models/tag.model';
       font-family: inherit; font-size: 0.82rem; outline: none; transition: border-color 0.2s;
     }
     .field input:focus, .field select:focus, .field textarea:focus { border-color: #787774; }
-    .body-editor { font-family: 'Courier New', monospace; font-size: 0.78rem; line-height: 1.5; }
+    .editor-field :host ::ng-deep .ql-container { font-family: 'Nunito', sans-serif; font-size: 0.92rem; line-height: 1.7; }
+    .editor-field :host ::ng-deep .ql-editor { min-height: 400px; }
+    .editor-field :host ::ng-deep .ql-toolbar { border-radius: 6px 6px 0 0; border-color: #e8e6e1; background: #faf9f7; }
+    .editor-field :host ::ng-deep .ql-container { border-radius: 0 0 6px 6px; border-color: #e8e6e1; }
+    .editor-field :host ::ng-deep .ql-editor h2 { font-family: 'Lora', serif; font-size: 1.2rem; font-weight: 600; margin: 1.2rem 0 0.5rem; }
+    .editor-field :host ::ng-deep .ql-editor h3 { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 600; margin: 1rem 0 0.4rem; }
+    .editor-field :host ::ng-deep .ql-editor blockquote { border-left: 3px solid #4a7fd4; background: #e6effb; padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
     .tags-select { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .tag-option { font-size: 0.75rem; display: flex; align-items: center; gap: 0.2rem; padding: 0.2rem 0.4rem; background: #f7f6f3; border-radius: 4px; cursor: pointer; }
     .cover-preview { width: 100%; border-radius: 6px; margin: 0.5rem 0; }
@@ -170,6 +183,17 @@ export class ArticleFormComponent implements OnInit {
   categories = signal<Category[]>([]);
   authors = signal<Author[]>([]);
   allTags = signal<Tag[]>([]);
+
+  quillModules = {
+    toolbar: [
+      [{ header: [2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      ['blockquote', 'code-block'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image'],
+      ['clean']
+    ]
+  };
 
   form: ArticleCreate & { coverImageCredit?: string } = {
     title: '', slug: '', excerpt: '', body: '',

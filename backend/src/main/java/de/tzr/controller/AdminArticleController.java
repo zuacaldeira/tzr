@@ -22,11 +22,15 @@ public class AdminArticleController {
     public PageResponse<ArticleListDTO> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int size,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
         String[] parts = sort.split(",");
         Sort.Direction dir = parts.length > 1 && parts[1].equalsIgnoreCase("asc")
             ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, Math.min(size, 50), Sort.by(dir, parts[0]));
+        if (status != null && !status.isBlank()) {
+            return articleService.getByStatusAdmin(status, pageable);
+        }
         return articleService.getAllAdmin(pageable);
     }
 

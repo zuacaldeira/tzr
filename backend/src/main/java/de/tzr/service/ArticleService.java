@@ -92,6 +92,12 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
+    public PageResponse<ArticleListDTO> getByStatusAdmin(String status, Pageable pageable) {
+        ArticleStatus articleStatus = ArticleStatus.valueOf(status);
+        return toPageResponse(articleRepository.findByStatus(articleStatus, pageable));
+    }
+
+    @Transactional(readOnly = true)
     public ArticleDTO getByIdAdmin(Long id) {
         Article article = articleRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Article not found: " + id));

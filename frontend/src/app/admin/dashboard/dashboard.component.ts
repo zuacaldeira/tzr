@@ -18,28 +18,28 @@ import { environment } from '../../../environments/environment';
             <span class="stat-label">Beiträge</span>
           </div>
           <div class="stat-detail">
-            <span class="dot draft"></span> {{ stats()?.draftCount || 0 }} Entwürfe
-            <span class="dot published"></span> {{ stats()?.publishedCount || 0 }} Veröffentlicht
+            <span class="dot draft"></span> {{ stats()?.draftArticles || 0 }} Entwürfe
+            <span class="dot published"></span> {{ stats()?.publishedArticles || 0 }} Veröffentlicht
           </div>
         </div>
         <div class="stat-card">
           <span class="stat-icon">📂</span>
           <div class="stat-info">
-            <span class="stat-value">{{ stats()?.categoryCount || 0 }}</span>
+            <span class="stat-value">{{ stats()?.categories || 0 }}</span>
             <span class="stat-label">Kategorien</span>
           </div>
         </div>
         <div class="stat-card">
           <span class="stat-icon">👤</span>
           <div class="stat-info">
-            <span class="stat-value">{{ stats()?.authorCount || 0 }}</span>
+            <span class="stat-value">{{ stats()?.authors || 0 }}</span>
             <span class="stat-label">Autoren</span>
           </div>
         </div>
         <div class="stat-card">
           <span class="stat-icon">📬</span>
           <div class="stat-info">
-            <span class="stat-value">{{ stats()?.subscriberCount || 0 }}</span>
+            <span class="stat-value">{{ stats()?.subscribers || 0 }}</span>
             <span class="stat-label">Newsletter</span>
           </div>
         </div>
@@ -97,9 +97,10 @@ import { environment } from '../../../environments/environment';
     .recent-item {
       display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0;
       font-size: 0.82rem; color: #37352f; transition: color 0.15s;
+      min-width: 0;
     }
     .recent-item:hover { color: #3a9e7e; }
-    .item-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
     .empty { font-size: 0.8rem; color: #b4b3af; padding: 0.5rem 0; }
     @media (max-width: 960px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } .recent-grid { grid-template-columns: 1fr; } }

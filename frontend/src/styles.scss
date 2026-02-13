@@ -134,54 +134,71 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .article-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  gap: 1.5rem;
+  align-items: stretch;
 }
 
 // Newsletter
-.newsletter-section { padding: 3rem 0; }
+.newsletter-section {
+  padding: 3.5rem 0;
+  background: linear-gradient(180deg, #faf9f7 0%, #f0eeea 100%);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+}
 .newsletter-box {
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 2.5rem;
+  border-radius: 14px;
+  padding: 3rem 2.5rem;
   text-align: center;
-  background: linear-gradient(180deg, var(--surface-hover) 0%, var(--surface) 100%);
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  max-width: 640px;
+  margin: 0 auto;
+}
+.newsletter-icon {
+  font-size: 2rem;
+  margin-bottom: 0.6rem;
+  display: block;
 }
 .newsletter-title {
   font-family: 'Lora', serif;
   font-weight: 700;
-  font-size: 1.3rem;
-  margin-bottom: 0.4rem;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
 }
 .newsletter-desc {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--ink-light);
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
 }
 .newsletter-form {
   display: flex;
   gap: 0.5rem;
-  max-width: 400px;
+  max-width: 420px;
   margin: 0 auto;
   input {
     flex: 1;
-    padding: 0.6rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
     font-family: 'Nunito', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     outline: none;
     transition: border-color 0.2s;
-    &:focus { border-color: var(--ink-faint); }
+    &:focus { border-color: var(--ink-faint); box-shadow: 0 0 0 3px rgba(55,53,47,0.06); }
   }
   button {
-    padding: 0.6rem 1.2rem;
+    padding: 0.7rem 1.4rem;
     background: var(--ink);
     color: #fff;
-    border-radius: 6px;
-    font-size: 0.82rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
     font-weight: 700;
-    transition: opacity 0.2s;
-    &:hover { opacity: 0.85; }
+    transition: all 0.2s;
+    white-space: nowrap;
+    &:hover { opacity: 0.85; transform: translateY(-1px); }
   }
 }
 
@@ -192,6 +209,7 @@ button { font-family: inherit; cursor: pointer; border: none; }
 @media (max-width: 640px) {
   .article-grid { grid-template-columns: 1fr; }
   .newsletter-form { flex-direction: column; }
+  .newsletter-box { padding: 2rem 1.5rem; }
   .container { padding: 0 1.2rem; }
 }
 

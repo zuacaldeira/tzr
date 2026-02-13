@@ -15,15 +15,21 @@ import { Component, computed, input, output } from '@angular/core';
     }
   `,
   styles: [`
-    .pagination { display: flex; justify-content: center; gap: 0.3rem; padding: 2rem 0; }
+    .pagination { display: flex; justify-content: center; gap: 0.4rem; padding: 2.5rem 0; }
     .page-btn {
-      min-width: 34px; height: 34px; border-radius: 6px; font-size: 0.82rem; font-weight: 600;
-      background: var(--surface); border: 1px solid var(--border); color: var(--ink-light);
-      transition: all 0.2s;
+      min-width: 38px; height: 38px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+      background: var(--surface); border: 1.5px solid var(--border); color: var(--ink-light);
+      transition: all 0.2s; display: flex; align-items: center; justify-content: center;
     }
-    .page-btn:hover:not(:disabled) { background: var(--surface-hover); color: var(--ink); }
-    .page-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
-    .page-btn:disabled { opacity: 0.4; cursor: default; }
+    .page-btn:hover:not(:disabled) {
+      background: var(--surface-hover); color: var(--ink); border-color: var(--ink-faint);
+      transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .page-btn.active {
+      background: var(--ink); color: #fff; border-color: var(--ink);
+      box-shadow: 0 2px 8px rgba(55,53,47,0.2);
+    }
+    .page-btn:disabled { opacity: 0.35; cursor: default; }
   `]
 })
 export class PaginationComponent {

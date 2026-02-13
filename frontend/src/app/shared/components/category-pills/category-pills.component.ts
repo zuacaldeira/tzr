@@ -34,17 +34,27 @@ import { Category } from '../../../core/models/category.model';
     </div>
   `,
   styles: [`
-    .pills-section { padding: 1rem 0; }
-    .pills-row { margin-bottom: 0.6rem; }
-    .pills-label { font-size: 0.7rem; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 0.4rem; }
-    .pills { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-    .pill {
-      padding: 0.28rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
-      background: var(--surface-hover); color: var(--ink-light); border: 1px solid var(--border);
-      transition: all 0.2s;
+    .pills-section { padding: 0.8rem 0 1.2rem; }
+    .pills-row { margin-bottom: 0.8rem; }
+    .pills-label {
+      font-size: 0.68rem; font-weight: 800; color: var(--ink-faint); text-transform: uppercase;
+      letter-spacing: 0.06em; display: block; margin-bottom: 0.5rem;
     }
-    .pill:hover { background: var(--pill-bg, var(--surface-hover)); color: var(--pill-color, var(--ink)); border-color: var(--pill-color, var(--border)); }
-    .pill.active { background: var(--pill-bg, var(--ink)); color: var(--pill-color, #fff); border-color: var(--pill-color, var(--ink)); }
+    .pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .pill {
+      padding: 0.38rem 0.85rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+      background: var(--surface-hover); color: var(--ink-light); border: 1.5px solid var(--border);
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .pill:hover {
+      background: var(--pill-bg, var(--surface-hover)); color: var(--pill-color, var(--ink));
+      border-color: var(--pill-color, var(--border)); transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .pill.active {
+      background: var(--pill-bg, var(--ink)); color: var(--pill-color, #fff);
+      border-color: var(--pill-color, var(--ink)); box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
   `]
 })
 export class CategoryPillsComponent {

@@ -34,44 +34,50 @@ import { TruncatePipe } from '../../pipes/truncate.pipe';
     </a>
   `,
   styles: [`
+    :host { display: flex; height: 100%; }
     .card {
-      display: flex; flex-direction: column;
-      border: 1px solid var(--border); border-radius: 10px;
-      overflow: hidden; transition: box-shadow 0.2s, transform 0.15s;
+      display: flex; flex-direction: column; width: 100%;
+      border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; transition: box-shadow 0.25s, transform 0.2s;
       background: #fff;
     }
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
+    .card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); transform: translateY(-3px); }
     .card-header {
-      height: 180px; background-size: cover; background-position: center;
-      position: relative;
+      height: 190px; background-size: cover; background-position: center;
+      position: relative; flex-shrink: 0;
     }
     .card-emoji {
       position: absolute; bottom: -16px; left: 16px;
       font-size: 1.6rem; background: #fff; border-radius: 50%;
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .academic-badge {
       position: absolute; top: 10px; right: 10px;
-      background: rgba(255,255,255,0.92); padding: 0.2rem 0.5rem;
-      border-radius: 4px; font-size: 0.7rem; font-weight: 700;
+      background: rgba(255,255,255,0.95); padding: 0.22rem 0.6rem;
+      border-radius: 5px; font-size: 0.7rem; font-weight: 700;
+      color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
-    .card-body { padding: 1.3rem 1rem 1rem; flex: 1; display: flex; flex-direction: column; }
+    .card-body { padding: 1.4rem 1.1rem 1.1rem; flex: 1; display: flex; flex-direction: column; }
     .category-pill {
-      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px;
-      font-size: 0.7rem; font-weight: 700; margin-bottom: 0.5rem; width: fit-content;
+      display: inline-block; padding: 0.18rem 0.55rem; border-radius: 5px;
+      font-size: 0.72rem; font-weight: 700; margin-bottom: 0.5rem; width: fit-content;
     }
     .card-title {
-      font-family: 'Lora', serif; font-weight: 600; font-size: 1rem;
-      line-height: 1.35; color: var(--ink); margin-bottom: 0.4rem;
+      font-family: 'Lora', serif; font-weight: 600; font-size: 1.02rem;
+      line-height: 1.38; color: var(--ink); margin-bottom: 0.5rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .card-excerpt { font-size: 0.82rem; color: var(--ink-light); line-height: 1.5; flex: 1; }
+    .card-excerpt {
+      font-size: 0.84rem; color: var(--ink-light); line-height: 1.55; flex: 1;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
     .card-meta {
       display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
-      font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.8rem;
-      padding-top: 0.6rem; border-top: 1px solid var(--border-light);
+      font-size: 0.76rem; color: var(--ink-faint); margin-top: auto;
+      padding-top: 0.8rem; border-top: 1px solid var(--border-light);
     }
-    .author { font-weight: 600; }
+    .author { font-weight: 600; color: var(--ink-light); }
     .sep { opacity: 0.4; }
   `]
 })

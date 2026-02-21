@@ -74,7 +74,8 @@ jobs:
         id: version
         run: |
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            VERSION="${{ github.ref_name }}"
+            echo "tag=${VERSION#v}" >> "$GITHUB_OUTPUT"
           else
             echo "tag=latest" >> "$GITHUB_OUTPUT"
           fi

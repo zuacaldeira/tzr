@@ -99,6 +99,25 @@ On first run with dev profile, the application seeds:
 
 ## Production Deployment
 
+**Production URL:** https://tzr.zuacaldeira.com
+**Contact:** tzr@zuacaldeira.com
+
+### Automated Deployment (CI/CD)
+
+Pushing a version tag triggers the full pipeline:
+
+```bash
+git tag v1.1.0 && git push origin v1.1.0
+```
+
+1. GitHub Actions builds the Docker image and pushes to GHCR
+2. SSHs into the VPS and deploys the new version
+3. Sets up / renews the Let's Encrypt SSL certificate via certbot
+4. Verifies container health
+
+**Required GitHub Actions secrets:**
+- `SSH_PRIVATE_KEY` — SSH key for VPS access
+
 ### Docker (recommended)
 
 ```bash

@@ -44,5 +44,5 @@ ssh "$SERVER" "cd $PROJECT_DIR && docker compose -f docker-compose.prod.yml ps"
 
 echo ""
 echo "=== Deployment complete (version: $VERSION) ==="
-echo "App: http://tzr.cabuaxe.com (via nginx reverse proxy)"
+echo "App: https://tzr.zuacaldeira.com (via nginx reverse proxy)"
 echo "Direct: http://217.154.2.230:8083"

@@ -29,6 +29,7 @@ import { RouterLink } from '@angular/router';
             <h4>Rechtliches</h4>
             <span class="placeholder-link">Impressum</span>
             <span class="placeholder-link">Datenschutz</span>
+            <a href="mailto:tzr@zuacaldeira.com">Kontakt</a>
           </div>
         </div>
         <div class="footer-bottom">

@@ -33,7 +33,9 @@ public class ArticleTranslation {
     @Column(columnDefinition = "TEXT")
     private String body;
 
+    @Column(length = 500)
     private String metaTitle;
+    @Column(length = 500)
     private String metaDescription;
     private Integer readingTimeMinutes;
 }

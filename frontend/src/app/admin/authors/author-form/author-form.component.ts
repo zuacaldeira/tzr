@@ -1,32 +1,38 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorService } from '../../../core/services/author.service';
-import { AuthorCreate } from '../../../core/models/author.model';
+import { AuthorCreate, AuthorTranslation } from '../../../core/models/author.model';
+import { TranslationTabsComponent, TranslationLang, TranslationStatus } from '../../shared/translation-tabs/translation-tabs.component';
 
 @Component({
   selector: 'app-author-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslateModule, TranslationTabsComponent],
   template: `
     <div class="form-page">
       <div class="form-header">
-        <h1>{{ isEdit() ? 'Autor bearbeiten' : 'Neuer Autor' }}</h1>
+        <h1>{{ (isEdit() ? 'admin.authorForm.editAuthor' : 'admin.authorForm.newAuthor') | translate }}</h1>
         <div class="form-actions">
-          <a routerLink="/admin/autoren" class="btn-secondary">Abbrechen</a>
-          <button class="btn-primary" (click)="save()">Speichern</button>
+          <a routerLink="/admin/autoren" class="btn-secondary">{{ 'admin.authorForm.cancel' | translate }}</a>
+          <button class="btn-primary" (click)="save()">{{ 'admin.authorForm.save' | translate }}</button>
         </div>
       </div>
       <div class="form-grid">
         <div class="form-main">
-          <div class="field"><label>Name</label><input type="text" [(ngModel)]="form.name" /></div>
-          <div class="field"><label>Slug</label><input type="text" [(ngModel)]="form.slug" /></div>
-          <div class="field"><label>E-Mail</label><input type="email" [(ngModel)]="form.email" /></div>
-          <div class="field"><label>Biografie</label><textarea [(ngModel)]="form.bio" rows="4"></textarea></div>
-          <div class="field"><label>Avatar-URL</label><input type="text" [(ngModel)]="form.avatarUrl" /></div>
+          <div class="field"><label>{{ 'admin.authorForm.name' | translate }}</label><input type="text" [(ngModel)]="form.name" [placeholder]="'admin.authorForm.namePlaceholder' | translate" /></div>
+          <div class="field"><label>{{ 'admin.authorForm.slug' | translate }}</label><input type="text" [(ngModel)]="form.slug" /></div>
+          <div class="field"><label>{{ 'admin.authorForm.email' | translate }}</label><input type="email" [(ngModel)]="form.email" /></div>
+
+          <app-translation-tabs [status]="translationStatus()" (langChange)="onLangChange($event)" />
+
+          <div class="field"><label>{{ 'admin.authorForm.bio' | translate }}</label><textarea [ngModel]="currentBio()" (ngModelChange)="setBio($event)" rows="4" [placeholder]="'admin.authorForm.bioPlaceholder' | translate"></textarea></div>
+
+          <div class="field"><label>{{ 'admin.authorForm.avatarUrl' | translate }}</label><input type="text" [(ngModel)]="form.avatarUrl" /></div>
         </div>
         <div class="preview-card">
-          <h3>Vorschau</h3>
+          <h3>{{ 'admin.authorForm.preview' | translate }}</h3>
           <div class="author-preview">
             @if (form.avatarUrl) {
               <img [src]="form.avatarUrl" class="avatar" />
@@ -34,7 +40,7 @@ import { AuthorCreate } from '../../../core/models/author.model';
               <div class="avatar-placeholder">{{ (form.name || 'A').charAt(0) }}</div>
             }
             <h4>{{ form.name || 'Name' }}</h4>
-            <p>{{ form.bio || 'Biografie…' }}</p>
+            <p>{{ form.bio || ('admin.authorForm.bioPlaceholder' | translate) }}</p>
           </div>
         </div>
       </div>
@@ -64,10 +70,25 @@ export class AuthorFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authorService = inject(AuthorService);
+  private translate = inject(TranslateService);
 
   isEdit = signal(false);
   authorId = signal<number | null>(null);
+  activeTranslationLang = signal<TranslationLang>('DE');
   form: AuthorCreate = { name: '', slug: '', bio: '', email: '', avatarUrl: '' };
+  translationPT = { bio: '' };
+  translationEN = { bio: '' };
+
+  translationStatus = (): TranslationStatus => ({
+    DE: !!this.form.bio,
+    PT: !!this.translationPT.bio,
+    EN: !!this.translationEN.bio,
+  });
+
+  onLangChange(lang: TranslationLang) { this.activeTranslationLang.set(lang); }
+
+  currentBio(): string { return this.activeTranslationLang() === 'PT' ? this.translationPT.bio : this.activeTranslationLang() === 'EN' ? this.translationEN.bio : this.form.bio || ''; }
+  setBio(v: string) { if (this.activeTranslationLang() === 'PT') this.translationPT.bio = v; else if (this.activeTranslationLang() === 'EN') this.translationEN.bio = v; else this.form.bio = v; }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -76,17 +97,28 @@ export class AuthorFormComponent implements OnInit {
       this.authorId.set(+id);
       this.authorService.getAdminAuthor(+id).subscribe(a => {
         this.form = { name: a.name, slug: a.slug, bio: a.bio, email: a.email, avatarUrl: a.avatarUrl };
+        if (a.translations) {
+          for (const t of a.translations) {
+            if (t.language === 'PT') this.translationPT = { bio: t.bio || '' };
+            else if (t.language === 'EN') this.translationEN = { bio: t.bio || '' };
+          }
+        }
       });
     }
   }
 
   save() {
+    const translations: AuthorTranslation[] = [];
+    if (this.translationPT.bio) translations.push({ language: 'PT', bio: this.translationPT.bio });
+    if (this.translationEN.bio) translations.push({ language: 'EN', bio: this.translationEN.bio });
+    this.form.translations = translations;
+
     const obs = this.isEdit()
       ? this.authorService.updateAuthor(this.authorId()!, this.form)
       : this.authorService.createAuthor(this.form);
     obs.subscribe({
       next: () => this.router.navigate(['/admin/autoren']),
-      error: (err) => alert(err.error?.message || 'Fehler beim Speichern')
+      error: (err) => alert(err.error?.message || this.translate.instant('admin.authorForm.saveError'))
     });
   }
 }

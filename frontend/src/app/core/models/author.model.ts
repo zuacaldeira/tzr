@@ -6,6 +6,12 @@ export interface Author {
   email: string;
   avatarUrl: string;
   articleCount: number;
+  translations?: AuthorTranslation[];
+}
+
+export interface AuthorTranslation {
+  language: string;
+  bio: string;
 }
 
 export interface AuthorCreate {
@@ -14,4 +20,5 @@ export interface AuthorCreate {
   bio?: string;
   email?: string;
   avatarUrl?: string;
+  translations?: AuthorTranslation[];
 }

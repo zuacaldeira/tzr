@@ -1,6 +1,12 @@
+export interface TagTranslation {
+  language: string;
+  name: string;
+}
+
 export interface Tag {
   id: number;
   name: string;
   slug: string;
   articleCount: number;
+  translations?: TagTranslation[];
 }

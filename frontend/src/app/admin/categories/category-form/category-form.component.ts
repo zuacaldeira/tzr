@@ -3,12 +3,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CategoryService } from '../../../core/services/category.service';
-import { CategoryCreate } from '../../../core/models/category.model';
+import { CategoryCreate, CategoryTranslation } from '../../../core/models/category.model';
+import { TranslationTabsComponent, TranslationLang, TranslationStatus } from '../../shared/translation-tabs/translation-tabs.component';
 
 @Component({
   selector: 'app-category-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule],
+  imports: [FormsModule, RouterLink, TranslateModule, TranslationTabsComponent],
   template: `
     <div class="form-page">
       <div class="form-header">
@@ -20,10 +21,13 @@ import { CategoryCreate } from '../../../core/models/category.model';
       </div>
       <div class="form-grid">
         <div class="form-main">
-          <div class="field"><label>{{ 'admin.categoryForm.name' | translate }}</label><input type="text" [(ngModel)]="form.name" /></div>
-          <div class="field"><label>{{ 'admin.categoryForm.displayName' | translate }}</label><input type="text" [(ngModel)]="form.displayName" /></div>
+          <app-translation-tabs [status]="translationStatus()" (langChange)="onLangChange($event)" />
+
+          <div class="field"><label>{{ 'admin.categoryForm.name' | translate }}</label><input type="text" [ngModel]="currentName()" (ngModelChange)="setName($event)" /></div>
+          <div class="field"><label>{{ 'admin.categoryForm.displayName' | translate }}</label><input type="text" [ngModel]="currentDisplayName()" (ngModelChange)="setDisplayName($event)" /></div>
+          <div class="field"><label>{{ 'admin.categoryForm.description' | translate }}</label><textarea [ngModel]="currentDesc()" (ngModelChange)="setDesc($event)" rows="3"></textarea></div>
+
           <div class="field"><label>{{ 'admin.categoryForm.slug' | translate }}</label><input type="text" [(ngModel)]="form.slug" /></div>
-          <div class="field"><label>{{ 'admin.categoryForm.description' | translate }}</label><textarea [(ngModel)]="form.description" rows="3"></textarea></div>
           <div class="field"><label>{{ 'admin.categoryForm.emoji' | translate }}</label><input type="text" [(ngModel)]="form.emoji" /></div>
           <div class="row">
             <div class="field"><label>{{ 'admin.categoryForm.color' | translate }}</label><input type="color" [(ngModel)]="form.color" /></div>
@@ -79,7 +83,27 @@ export class CategoryFormComponent implements OnInit {
 
   isEdit = signal(false);
   categoryId = signal<number | null>(null);
+  activeTranslationLang = signal<TranslationLang>('DE');
   form: CategoryCreate = { name: '', displayName: '', slug: '', description: '', emoji: '', color: '#3a9e7e', bgColor: '#e5f5ef', type: 'BILDUNGSBEREICH', sortOrder: 0 };
+  translationPT = { name: '', displayName: '', description: '' };
+  translationEN = { name: '', displayName: '', description: '' };
+
+  translationStatus = (): TranslationStatus => ({
+    DE: !!this.form.name,
+    PT: !!this.translationPT.name,
+    EN: !!this.translationEN.name,
+  });
+
+  onLangChange(lang: TranslationLang) { this.activeTranslationLang.set(lang); }
+
+  currentName(): string { return this.activeTranslationLang() === 'PT' ? this.translationPT.name : this.activeTranslationLang() === 'EN' ? this.translationEN.name : this.form.name; }
+  setName(v: string) { if (this.activeTranslationLang() === 'PT') this.translationPT.name = v; else if (this.activeTranslationLang() === 'EN') this.translationEN.name = v; else this.form.name = v; }
+
+  currentDisplayName(): string { return this.activeTranslationLang() === 'PT' ? this.translationPT.displayName : this.activeTranslationLang() === 'EN' ? this.translationEN.displayName : this.form.displayName; }
+  setDisplayName(v: string) { if (this.activeTranslationLang() === 'PT') this.translationPT.displayName = v; else if (this.activeTranslationLang() === 'EN') this.translationEN.displayName = v; else this.form.displayName = v; }
+
+  currentDesc(): string { return this.activeTranslationLang() === 'PT' ? this.translationPT.description : this.activeTranslationLang() === 'EN' ? this.translationEN.description : this.form.description || ''; }
+  setDesc(v: string) { if (this.activeTranslationLang() === 'PT') this.translationPT.description = v; else if (this.activeTranslationLang() === 'EN') this.translationEN.description = v; else this.form.description = v; }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -88,11 +112,22 @@ export class CategoryFormComponent implements OnInit {
       this.categoryId.set(+id);
       this.categoryService.getAdminCategory(+id).subscribe(c => {
         this.form = { name: c.name, displayName: c.displayName, slug: c.slug, description: c.description, emoji: c.emoji, color: c.color, bgColor: c.bgColor, type: c.type, sortOrder: c.sortOrder };
+        if (c.translations) {
+          for (const t of c.translations) {
+            if (t.language === 'PT') this.translationPT = { name: t.name || '', displayName: t.displayName || '', description: t.description || '' };
+            else if (t.language === 'EN') this.translationEN = { name: t.name || '', displayName: t.displayName || '', description: t.description || '' };
+          }
+        }
       });
     }
   }
 
   save() {
+    const translations: CategoryTranslation[] = [];
+    if (this.translationPT.name) translations.push({ language: 'PT', ...this.translationPT });
+    if (this.translationEN.name) translations.push({ language: 'EN', ...this.translationEN });
+    this.form.translations = translations;
+
     const obs = this.isEdit()
       ? this.categoryService.updateCategory(this.categoryId()!, this.form)
       : this.categoryService.createCategory(this.form);

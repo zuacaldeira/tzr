@@ -23,6 +23,7 @@ export interface Article {
   metaDescription: string;
   createdAt: string;
   updatedAt: string;
+  translations?: ArticleTranslation[];
 }
 
 export interface ArticleList {
@@ -40,6 +41,16 @@ export interface ArticleList {
   featured: boolean;
   publishedDate: string;
   readingTimeMinutes: number;
+}
+
+export interface ArticleTranslation {
+  language: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  readingTimeMinutes?: number;
 }
 
 export interface ArticleCreate {
@@ -60,4 +71,5 @@ export interface ArticleCreate {
   readingTimeMinutes?: number;
   metaTitle?: string;
   metaDescription?: string;
+  translations?: ArticleTranslation[];
 }

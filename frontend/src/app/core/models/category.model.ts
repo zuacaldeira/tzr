@@ -10,6 +10,14 @@ export interface Category {
   type: string;
   sortOrder: number;
   articleCount: number;
+  translations?: CategoryTranslation[];
+}
+
+export interface CategoryTranslation {
+  language: string;
+  name: string;
+  displayName: string;
+  description?: string;
 }
 
 export interface CategoryCreate {
@@ -22,4 +30,5 @@ export interface CategoryCreate {
   bgColor?: string;
   type: string;
   sortOrder?: number;
+  translations?: CategoryTranslation[];
 }

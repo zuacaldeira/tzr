@@ -1,42 +1,45 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, FormsModule],
+  imports: [RouterLink, RouterLinkActive, FormsModule, TranslateModule, LanguageSwitcherComponent],
   template: `
     <nav class="navbar">
       <div class="navbar-inner container">
         <a routerLink="/" class="navbar-brand">
           <span class="brand-logo">TZR</span>
-          <span class="brand-sub">Impulse für frühkindliche Bildung</span>
+          <span class="brand-sub">{{ 'brand.tagline' | translate }}</span>
         </a>
         <div class="navbar-links">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Start</a>
-          <a routerLink="/bereiche" routerLinkActive="active">Bereiche</a>
-          <button class="search-btn" (click)="toggleSearch()" aria-label="Suche">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.home' | translate }}</a>
+          <a routerLink="/bereiche" routerLinkActive="active">{{ 'nav.areas' | translate }}</a>
+          <app-language-switcher />
+          <button class="search-btn" (click)="toggleSearch()" [attr.aria-label]="'nav.search' | translate">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
         </div>
-        <button class="hamburger-btn" (click)="toggleMobileMenu()" aria-label="Menü">
+        <button class="hamburger-btn" (click)="toggleMobileMenu()" [attr.aria-label]="'nav.menu' | translate">
           {{ mobileMenuOpen() ? '✕' : '☰' }}
         </button>
       </div>
       @if (mobileMenuOpen()) {
         <div class="mobile-menu">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">Start</a>
-          <a routerLink="/bereiche" routerLinkActive="active" (click)="closeMobileMenu()">Bereiche</a>
-          <button class="mobile-search-btn" (click)="toggleSearch(); closeMobileMenu()">Suche</button>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+          <a routerLink="/bereiche" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.areas' | translate }}</a>
+          <button class="mobile-search-btn" (click)="toggleSearch(); closeMobileMenu()">{{ 'nav.search' | translate }}</button>
         </div>
       }
       @if (searchOpen()) {
         <div class="search-overlay">
           <div class="container">
             <form (ngSubmit)="onSearch()" class="search-form">
-              <input type="text" [(ngModel)]="searchQuery" name="q" placeholder="Artikel suchen…" autofocus />
-              <button type="submit">Suchen</button>
+              <input type="text" [(ngModel)]="searchQuery" name="q" [placeholder]="'nav.searchPlaceholder' | translate" autofocus />
+              <button type="submit">{{ 'nav.searchBtn' | translate }}</button>
               <button type="button" class="close-btn" (click)="toggleSearch()">✕</button>
             </form>
           </div>

@@ -11,11 +11,12 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 import { ReadingTimePipe } from '../../shared/pipes/reading-time.pipe';
 import { DateDePipe } from '../../shared/pipes/date-de.pipe';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, ArticleCardComponent, CategoryPillsComponent, PaginationComponent, ReadingTimePipe, DateDePipe, FormsModule],
+  imports: [RouterLink, ArticleCardComponent, CategoryPillsComponent, PaginationComponent, ReadingTimePipe, DateDePipe, FormsModule, TranslateModule],
   template: `
     <!-- Hero Section (full-screen) -->
     @if (featured()) {
@@ -35,7 +36,7 @@ import { FormsModule } from '@angular/forms';
               <span class="sep">&middot;</span>
               <span>{{ featured()!.readingTimeMinutes | readingTime }}</span>
             </div>
-            <a [routerLink]="['/artikel', featured()!.slug]" class="hero-cta">Artikel lesen</a>
+            <a [routerLink]="['/artikel', featured()!.slug]" class="hero-cta">{{ 'home.readArticle' | translate }}</a>
           </div>
           <div class="hero-side">
             @for (article of sideArticles(); track article.id) {
@@ -57,7 +58,7 @@ import { FormsModule } from '@angular/forms';
     <!-- Category Pills + Articles Grid -->
     <section class="container">
       <div class="section-header">
-        <h2 class="section-title">Praxisimpulse</h2>
+        <h2 class="section-title">{{ 'home.practiceSection' | translate }}</h2>
       </div>
 
       @if (categories().length) {
@@ -78,11 +79,11 @@ import { FormsModule } from '@angular/forms';
       <div class="container">
         <div class="newsletter-box">
           <span class="newsletter-icon">&#9993;</span>
-          <h2 class="newsletter-title">Bildungsimpulse per E-Mail</h2>
-          <p class="newsletter-desc">Erhalten Sie monatlich neue Praxisideen und Fachartikel direkt in Ihr Postfach — kostenlos und jederzeit abbestellbar.</p>
+          <h2 class="newsletter-title">{{ 'home.newsletter.title' | translate }}</h2>
+          <p class="newsletter-desc">{{ 'home.newsletter.desc' | translate }}</p>
           <form class="newsletter-form" (ngSubmit)="onSubscribe()">
-            <input type="email" [(ngModel)]="newsletterEmail" name="email" placeholder="Ihre E-Mail-Adresse" required />
-            <button type="submit">Abonnieren</button>
+            <input type="email" [(ngModel)]="newsletterEmail" name="email" [placeholder]="'home.newsletter.placeholder' | translate" required />
+            <button type="submit">{{ 'home.newsletter.subscribe' | translate }}</button>
           </form>
           @if (subscribeMsg()) {
             <p class="subscribe-msg" [style.color]="subscribeMsgError() ? '#c24a8a' : '#3a9e7e'">{{ subscribeMsg() }}</p>
@@ -94,8 +95,8 @@ import { FormsModule } from '@angular/forms';
     <!-- Fachartikel -->
     <section class="container">
       <div class="section-header">
-        <h2 class="section-title">Fachartikel</h2>
-        <a routerLink="/suche" [queryParams]="{academic: true}" class="section-link">Alle Fachartikel &rarr;</a>
+        <h2 class="section-title">{{ 'home.academicSection' | translate }}</h2>
+        <a routerLink="/suche" [queryParams]="{academic: true}" class="section-link">{{ 'home.allAcademic' | translate }} &rarr;</a>
       </div>
       <div class="article-grid">
         @for (article of academicArticles(); track article.id) {
@@ -180,6 +181,7 @@ export class HomeComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private newsletterService = inject(NewsletterService);
   private route = inject(ActivatedRoute);
+  private translate = inject(TranslateService);
 
   featured = signal<ArticleList | null>(null);
   sideArticles = signal<ArticleList[]>([]);
@@ -204,10 +206,10 @@ export class HomeComponent implements OnInit {
   private checkSubscriptionStatus() {
     const subscribed = this.route.snapshot.queryParamMap.get('subscribed');
     if (subscribed === 'true') {
-      this.subscribeMsg.set('Ihre Anmeldung wurde erfolgreich bestätigt! Willkommen!');
+      this.subscribeMsg.set(this.translate.instant('home.newsletter.successConfirmed'));
       this.subscribeMsgError.set(false);
     } else if (subscribed === 'error') {
-      this.subscribeMsg.set('Der Bestätigungslink ist ungültig oder abgelaufen.');
+      this.subscribeMsg.set(this.translate.instant('home.newsletter.errorExpired'));
       this.subscribeMsgError.set(true);
     }
   }
@@ -255,12 +257,12 @@ export class HomeComponent implements OnInit {
     if (!this.newsletterEmail) return;
     this.newsletterService.subscribe(this.newsletterEmail).subscribe({
       next: (res: any) => {
-        this.subscribeMsg.set(res.message || 'Bitte überprüfen Sie Ihr Postfach und bestätigen Sie Ihre Anmeldung.');
+        this.subscribeMsg.set(res.message || this.translate.instant('home.newsletter.successPending'));
         this.subscribeMsgError.set(false);
         this.newsletterEmail = '';
       },
       error: () => {
-        this.subscribeMsg.set('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+        this.subscribeMsg.set(this.translate.instant('home.newsletter.error'));
         this.subscribeMsgError.set(true);
       }
     });

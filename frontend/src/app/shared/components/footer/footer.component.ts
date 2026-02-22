@@ -1,39 +1,40 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   template: `
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-top">
           <div class="footer-brand">
             <span class="brand-logo">TZR</span>
-            <p>Impulse für frühkindliche Bildung nach dem Berliner Bildungsprogramm</p>
+            <p>{{ 'footer.tagline' | translate }}</p>
           </div>
           <div class="footer-col">
-            <h4>Navigation</h4>
-            <a routerLink="/">Start</a>
-            <a routerLink="/bereiche">Bildungsbereiche</a>
-            <a routerLink="/suche" [queryParams]="{academic: true}">Fachartikel</a>
+            <h4>{{ 'footer.navigation' | translate }}</h4>
+            <a routerLink="/">{{ 'nav.home' | translate }}</a>
+            <a routerLink="/bereiche">{{ 'categories.educational' | translate }}</a>
+            <a routerLink="/suche" [queryParams]="{academic: true}">{{ 'footer.academicArticles' | translate }}</a>
           </div>
           <div class="footer-col">
-            <h4>Themen</h4>
-            <a routerLink="/bereiche/gesundheit">Gesundheit</a>
-            <a routerLink="/bereiche/kommunikation">Kommunikation</a>
-            <a routerLink="/bereiche/soziales">Soziales Lernen</a>
+            <h4>{{ 'footer.topics' | translate }}</h4>
+            <a routerLink="/bereiche/gesundheit">{{ 'footer.health' | translate }}</a>
+            <a routerLink="/bereiche/kommunikation">{{ 'footer.communication' | translate }}</a>
+            <a routerLink="/bereiche/soziales">{{ 'footer.social' | translate }}</a>
           </div>
           <div class="footer-col">
-            <h4>Rechtliches</h4>
-            <span class="placeholder-link">Impressum</span>
-            <span class="placeholder-link">Datenschutz</span>
-            <a href="mailto:tzr@zuacaldeira.com">Kontakt</a>
+            <h4>{{ 'footer.legal' | translate }}</h4>
+            <span class="placeholder-link">{{ 'footer.imprint' | translate }}</span>
+            <span class="placeholder-link">{{ 'footer.privacy' | translate }}</span>
+            <a href="mailto:tzr@zuacaldeira.com">{{ 'footer.contact' | translate }}</a>
           </div>
         </div>
         <div class="footer-bottom">
-          <span>&copy; {{ currentYear }} TZR &mdash; Alle Rechte vorbehalten</span>
+          <span>&copy; {{ currentYear }} TZR &mdash; {{ 'footer.copyright' | translate }}</span>
         </div>
       </div>
     </footer>

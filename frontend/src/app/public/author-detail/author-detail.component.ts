@@ -6,16 +6,17 @@ import { Author } from '../../core/models/author.model';
 import { ArticleList } from '../../core/models/article.model';
 import { ArticleCardComponent } from '../../shared/components/article-card/article-card.component';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-author-detail',
   standalone: true,
-  imports: [RouterLink, ArticleCardComponent, PaginationComponent],
+  imports: [RouterLink, ArticleCardComponent, PaginationComponent, TranslateModule],
   template: `
     @if (author()) {
       <div class="container page-enter">
         <nav class="breadcrumbs">
-          <a routerLink="/">Start</a><span class="sep">&rsaquo;</span>
+          <a routerLink="/">{{ 'nav.home' | translate }}</a><span class="sep">&rsaquo;</span>
           <span>{{ author()!.name }}</span>
         </nav>
         <div class="author-header">
@@ -30,14 +31,14 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
           </div>
         </div>
 
-        <h2 class="section-title">Beiträge von {{ author()!.name }}</h2>
+        <h2 class="section-title">{{ 'author.articlesBy' | translate:{name: author()!.name} }}</h2>
         <div class="article-grid">
           @for (article of articles(); track article.id) {
             <app-article-card [article]="article" />
           }
         </div>
         @if (!articles().length) {
-          <p class="empty">Noch keine Beiträge vorhanden.</p>
+          <p class="empty">{{ 'author.noArticles' | translate }}</p>
         }
         <app-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPage($event)" />
       </div>

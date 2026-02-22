@@ -4,20 +4,21 @@ import { ArticleService } from '../../core/services/article.service';
 import { ArticleList } from '../../core/models/article.model';
 import { ArticleCardComponent } from '../../shared/components/article-card/article-card.component';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-search-results',
   standalone: true,
-  imports: [ArticleCardComponent, PaginationComponent],
+  imports: [ArticleCardComponent, PaginationComponent, TranslateModule],
   template: `
     <div class="container page-enter">
       <div class="page-header">
         @if (tagSlug()) {
-          <h1>Thema: {{ tagSlug() }}</h1>
+          <h1>{{ 'search.topic' | translate }}: {{ tagSlug() }}</h1>
         } @else {
-          <h1>Suchergebnisse{{ query() ? ': \u201E' + query() + '\u201C' : '' }}</h1>
+          <h1>{{ 'search.results' | translate }}{{ query() ? ': \u201E' + query() + '\u201C' : '' }}</h1>
         }
-        <p class="result-count">{{ totalElements() }} Beiträge gefunden</p>
+        <p class="result-count">{{ 'search.resultCount' | translate:{count: totalElements()} }}</p>
       </div>
 
       <div class="article-grid">
@@ -26,7 +27,7 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
         }
       </div>
       @if (!articles().length && !loading()) {
-        <p class="empty">Keine Beiträge gefunden.</p>
+        <p class="empty">{{ 'search.noResults' | translate }}</p>
       }
       <app-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPage($event)" />
     </div>

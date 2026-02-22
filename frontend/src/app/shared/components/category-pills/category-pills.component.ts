@@ -1,15 +1,17 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { Category } from '../../../core/models/category.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-category-pills',
   standalone: true,
+  imports: [TranslateModule],
   template: `
     <div class="pills-section">
       <div class="pills-row">
-        <span class="pills-label">Bildungsbereiche</span>
+        <span class="pills-label">{{ 'categories.educational' | translate }}</span>
         <div class="pills">
-          <button class="pill" [class.active]="!selected()" (click)="select(null)">Alle</button>
+          <button class="pill" [class.active]="!selected()" (click)="select(null)">{{ 'categories.all' | translate }}</button>
           @for (cat of bildungsbereiche(); track cat.id) {
             <button class="pill" [class.active]="selected() === cat.slug"
               [style.--pill-color]="cat.color" [style.--pill-bg]="cat.bgColor"
@@ -20,7 +22,7 @@ import { Category } from '../../../core/models/category.model';
         </div>
       </div>
       <div class="pills-row">
-        <span class="pills-label">Querschnittsaufgaben</span>
+        <span class="pills-label">{{ 'categories.crossCutting' | translate }}</span>
         <div class="pills">
           @for (cat of querschnittsaufgaben(); track cat.id) {
             <button class="pill" [class.active]="selected() === cat.slug"

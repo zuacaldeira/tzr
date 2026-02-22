@@ -6,17 +6,18 @@ import { Category } from '../../core/models/category.model';
 import { ArticleList } from '../../core/models/article.model';
 import { ArticleCardComponent } from '../../shared/components/article-card/article-card.component';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-category-detail',
   standalone: true,
-  imports: [RouterLink, ArticleCardComponent, PaginationComponent],
+  imports: [RouterLink, ArticleCardComponent, PaginationComponent, TranslateModule],
   template: `
     @if (category()) {
       <div class="container page-enter">
         <nav class="breadcrumbs">
-          <a routerLink="/">Start</a><span class="sep">&rsaquo;</span>
-          <a routerLink="/bereiche">Bereiche</a><span class="sep">&rsaquo;</span>
+          <a routerLink="/">{{ 'nav.home' | translate }}</a><span class="sep">&rsaquo;</span>
+          <a routerLink="/bereiche">{{ 'nav.areas' | translate }}</a><span class="sep">&rsaquo;</span>
           <span>{{ category()!.displayName }}</span>
         </nav>
         <div class="cat-header" [style.border-left-color]="category()!.color">
@@ -26,9 +27,9 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
         </div>
 
         <div class="filter-bar">
-          <button [class.active]="filter() === 'all'" (click)="setFilter('all')">Alle</button>
-          <button [class.active]="filter() === 'praxis'" (click)="setFilter('praxis')">Praxis</button>
-          <button [class.active]="filter() === 'academic'" (click)="setFilter('academic')">Fachartikel</button>
+          <button [class.active]="filter() === 'all'" (click)="setFilter('all')">{{ 'categories.all' | translate }}</button>
+          <button [class.active]="filter() === 'praxis'" (click)="setFilter('praxis')">{{ 'categories.practice' | translate }}</button>
+          <button [class.active]="filter() === 'academic'" (click)="setFilter('academic')">{{ 'article.academic' | translate }}</button>
         </div>
 
         <div class="article-grid">
@@ -37,7 +38,7 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
           }
         </div>
         @if (!articles().length) {
-          <p class="empty">Keine Beiträge in diesem Bereich gefunden.</p>
+          <p class="empty">{{ 'categories.noArticles' | translate }}</p>
         }
         <app-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPage($event)" />
       </div>

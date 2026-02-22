@@ -2,41 +2,42 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CategoryService } from '../../core/services/category.service';
 import { Category } from '../../core/models/category.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   template: `
     <div class="container page-enter">
       <div class="page-header">
-        <h1>Bereiche</h1>
-        <p>Entdecken Sie unsere Bildungsbereiche und Querschnittsaufgaben aus dem Berliner Bildungsprogramm.</p>
+        <h1>{{ 'categories.title' | translate }}</h1>
+        <p>{{ 'categories.desc' | translate }}</p>
       </div>
 
       <section class="cat-section">
-        <h2>Bildungsbereiche</h2>
+        <h2>{{ 'categories.educational' | translate }}</h2>
         <div class="cat-grid">
           @for (cat of bildungsbereiche(); track cat.id) {
             <a [routerLink]="['/bereiche', cat.slug]" class="cat-card" [style.border-left-color]="cat.color">
               <span class="cat-emoji">{{ cat.emoji }}</span>
               <h3>{{ cat.displayName }}</h3>
               <p class="cat-desc">{{ cat.description }}</p>
-              <span class="cat-count" [style.color]="cat.color">{{ cat.articleCount }} Beiträge</span>
+              <span class="cat-count" [style.color]="cat.color">{{ 'categories.articleCount' | translate:{count: cat.articleCount} }}</span>
             </a>
           }
         </div>
       </section>
 
       <section class="cat-section">
-        <h2>Querschnittsaufgaben</h2>
+        <h2>{{ 'categories.crossCutting' | translate }}</h2>
         <div class="cat-grid">
           @for (cat of querschnittsaufgaben(); track cat.id) {
             <a [routerLink]="['/bereiche', cat.slug]" class="cat-card" [style.border-left-color]="cat.color">
               <span class="cat-emoji">{{ cat.emoji }}</span>
               <h3>{{ cat.displayName }}</h3>
               <p class="cat-desc">{{ cat.description }}</p>
-              <span class="cat-count" [style.color]="cat.color">{{ cat.articleCount }} Beiträge</span>
+              <span class="cat-count" [style.color]="cat.color">{{ 'categories.articleCount' | translate:{count: cat.articleCount} }}</span>
             </a>
           }
         </div>

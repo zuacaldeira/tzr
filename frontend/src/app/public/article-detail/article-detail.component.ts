@@ -6,26 +6,27 @@ import { ArticleList } from '../../core/models/article.model';
 import { ArticleCardComponent } from '../../shared/components/article-card/article-card.component';
 import { ReadingTimePipe } from '../../shared/pipes/reading-time.pipe';
 import { DateDePipe } from '../../shared/pipes/date-de.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-article-detail',
   standalone: true,
-  imports: [RouterLink, ArticleCardComponent, ReadingTimePipe, DateDePipe],
+  imports: [RouterLink, ArticleCardComponent, ReadingTimePipe, DateDePipe, TranslateModule],
   template: `
     @if (article()) {
       <!-- Cover Image -->
       <div class="cover" [style.background-image]="'linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.03) 55%), url(' + article()!.coverImageUrl + '?auto=compress&cs=tinysrgb&w=1400&h=500&fit=crop)'">
         @if (article()!.coverImageCredit) {
-          <span class="credit">Foto: {{ article()!.coverImageCredit }}</span>
+          <span class="credit">{{ 'article.photo' | translate }}: {{ article()!.coverImageCredit }}</span>
         }
       </div>
 
       <article class="container article-container page-enter">
         <!-- Breadcrumbs -->
         <nav class="breadcrumbs">
-          <a routerLink="/">Start</a>
+          <a routerLink="/">{{ 'nav.home' | translate }}</a>
           <span class="sep">&rsaquo;</span>
-          <a routerLink="/bereiche">Bereiche</a>
+          <a routerLink="/bereiche">{{ 'nav.areas' | translate }}</a>
           <span class="sep">&rsaquo;</span>
           <a [routerLink]="['/bereiche', article()!.category.slug]">{{ article()!.category.displayName }}</a>
           <span class="sep">&rsaquo;</span>
@@ -39,7 +40,7 @@ import { DateDePipe } from '../../shared/pipes/date-de.pipe';
               {{ article()!.category.emoji }} {{ article()!.category.displayName }}
             </span>
             @if (article()!.academic) {
-              <span class="academic-tag">Fachartikel</span>
+              <span class="academic-tag">{{ 'article.academic' | translate }}</span>
             }
           </div>
           <h1>{{ article()!.title }}</h1>
@@ -67,7 +68,7 @@ import { DateDePipe } from '../../shared/pipes/date-de.pipe';
         <!-- Related Articles -->
         @if (related().length) {
           <section class="related-section">
-            <h2 class="related-title">Weitere Beitr\u00e4ge</h2>
+            <h2 class="related-title">{{ 'article.relatedArticles' | translate }}</h2>
             <div class="article-grid">
               @for (r of related(); track r.id) {
                 <app-article-card [article]="r" />

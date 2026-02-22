@@ -13,6 +13,11 @@ services:
       DB_USER: ${DB_USER:-tzr}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      MAIL_HOST: ${MAIL_HOST:-smtp.strato.de}
+      MAIL_PORT: ${MAIL_PORT:-465}
+      MAIL_USER: ${MAIL_USER:-tzr@zuacaldeira.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      APP_BASE_URL: ${APP_BASE_URL:-https://tzr.zuacaldeira.com}
     depends_on:
       tzr-blog-db:
         condition: service_healthy

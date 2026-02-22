@@ -1,20 +1,34 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
+import { languageGuard } from './core/guards/language.guard';
+
+const publicChildren = [
+  { path: '', loadComponent: () => import('./public/home/home.component').then(m => m.HomeComponent) },
+  { path: 'artikel/:slug', loadComponent: () => import('./public/article-detail/article-detail.component').then(m => m.ArticleDetailComponent) },
+  { path: 'artigo/:slug', loadComponent: () => import('./public/article-detail/article-detail.component').then(m => m.ArticleDetailComponent) },
+  { path: 'article/:slug', loadComponent: () => import('./public/article-detail/article-detail.component').then(m => m.ArticleDetailComponent) },
+  { path: 'bereiche', loadComponent: () => import('./public/category-list/category-list.component').then(m => m.CategoryListComponent) },
+  { path: 'areas', loadComponent: () => import('./public/category-list/category-list.component').then(m => m.CategoryListComponent) },
+  { path: 'bereiche/:slug', loadComponent: () => import('./public/category-detail/category-detail.component').then(m => m.CategoryDetailComponent) },
+  { path: 'areas/:slug', loadComponent: () => import('./public/category-detail/category-detail.component').then(m => m.CategoryDetailComponent) },
+  { path: 'autoren/:slug', loadComponent: () => import('./public/author-detail/author-detail.component').then(m => m.AuthorDetailComponent) },
+  { path: 'autores/:slug', loadComponent: () => import('./public/author-detail/author-detail.component').then(m => m.AuthorDetailComponent) },
+  { path: 'authors/:slug', loadComponent: () => import('./public/author-detail/author-detail.component').then(m => m.AuthorDetailComponent) },
+  { path: 'thema/:slug', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
+  { path: 'tema/:slug', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
+  { path: 'topic/:slug', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
+  { path: 'suche', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
+  { path: 'pesquisa', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
+  { path: 'search', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
+];
 
 export const routes: Routes = [
   {
-    path: '',
+    path: ':lang',
+    canActivate: [languageGuard],
     loadComponent: () => import('./public-layout/public-layout.component').then(m => m.PublicLayoutComponent),
-    children: [
-      { path: '', loadComponent: () => import('./public/home/home.component').then(m => m.HomeComponent) },
-      { path: 'artikel/:slug', loadComponent: () => import('./public/article-detail/article-detail.component').then(m => m.ArticleDetailComponent) },
-      { path: 'bereiche', loadComponent: () => import('./public/category-list/category-list.component').then(m => m.CategoryListComponent) },
-      { path: 'bereiche/:slug', loadComponent: () => import('./public/category-detail/category-detail.component').then(m => m.CategoryDetailComponent) },
-      { path: 'autoren/:slug', loadComponent: () => import('./public/author-detail/author-detail.component').then(m => m.AuthorDetailComponent) },
-      { path: 'thema/:slug', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
-      { path: 'suche', loadComponent: () => import('./public/search-results/search-results.component').then(m => m.SearchResultsComponent) },
-    ]
+    children: publicChildren,
   },
   {
     path: 'admin',
@@ -40,5 +54,6 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: '' }
+  { path: '', redirectTo: '/de', pathMatch: 'full' },
+  { path: '**', redirectTo: '/de' }
 ];

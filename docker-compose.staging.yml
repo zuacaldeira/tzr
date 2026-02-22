@@ -1,0 +1,56 @@
+services:
+  app:
+    image: ghcr.io/cabuaxe/tzr-blog:${VERSION:-staging}
+    container_name: tzr-blog-staging-app
+    restart: unless-stopped
+    ports:
+      - "8084:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: tzr-blog-staging-db
+      DB_PORT: 5432
+      DB_NAME: tzr
+      DB_USER: ${DB_USER:-tzr}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      MAIL_HOST: ${MAIL_HOST:-smtp.strato.de}
+      MAIL_PORT: ${MAIL_PORT:-465}
+      MAIL_USER: ${MAIL_USER:-tzr@zuacaldeira.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      APP_BASE_URL: ${APP_BASE_URL:-https://staging.tzr.zuacaldeira.com}
+    depends_on:
+      tzr-blog-staging-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/public/categories"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tzr-staging-net
+
+  tzr-blog-staging-db:
+    image: postgres:17-alpine
+    container_name: tzr-blog-staging-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tzr
+      POSTGRES_USER: ${DB_USER:-tzr}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - tzr-staging-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tzr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - tzr-staging-net
+
+volumes:
+  tzr-staging-pgdata:
+
+networks:
+  tzr-staging-net:
+    driver: bridge

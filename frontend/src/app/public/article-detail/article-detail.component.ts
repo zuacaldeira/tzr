@@ -10,6 +10,7 @@ import { DateDePipe } from '../../shared/pipes/date-de.pipe';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouteHelperService } from '../../core/services/route-helper.service';
+import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-article-detail',
@@ -52,9 +53,9 @@ import { RouteHelperService } from '../../core/services/route-helper.service';
               {{ article()!.author.name }}
             </a>
             <span class="dot">&middot;</span>
-            <span>{{ article()!.publishedDate | dateDe }}</span>
+            <span>{{ article()!.publishedDate | dateDe:langService.currentLang() }}</span>
             <span class="dot">&middot;</span>
-            <span>{{ article()!.readingTimeMinutes | readingTime }}</span>
+            <span>{{ article()!.readingTimeMinutes | readingTime:langService.currentLang() }}</span>
           </div>
           @if (article()!.tags.length) {
             <div class="tag-row">
@@ -149,6 +150,7 @@ export class ArticleDetailComponent implements OnInit {
   private articleService = inject(ArticleService);
   private sanitizer = inject(DomSanitizer);
   private destroyRef = inject(DestroyRef);
+  langService = inject(LanguageService);
   routeHelper = inject(RouteHelperService);
 
   article = signal<Article | null>(null);

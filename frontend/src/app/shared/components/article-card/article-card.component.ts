@@ -1,6 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { RouteHelperService } from '../../../core/services/route-helper.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { ArticleList } from '../../../core/models/article.model';
 import { ReadingTimePipe } from '../../pipes/reading-time.pipe';
 import { DateDePipe } from '../../pipes/date-de.pipe';
@@ -28,9 +29,9 @@ import { TranslateModule } from '@ngx-translate/core';
         <div class="card-meta">
           <span class="author">{{ article().author.name }}</span>
           <span class="sep">&middot;</span>
-          <span>{{ article().publishedDate | dateDe }}</span>
+          <span>{{ article().publishedDate | dateDe:langService.currentLang() }}</span>
           <span class="sep">&middot;</span>
-          <span>{{ article().readingTimeMinutes | readingTime }}</span>
+          <span>{{ article().readingTimeMinutes | readingTime:langService.currentLang() }}</span>
         </div>
       </div>
     </a>
@@ -85,5 +86,6 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class ArticleCardComponent {
   routeHelper = inject(RouteHelperService);
+  langService = inject(LanguageService);
   article = input.required<ArticleList>();
 }

@@ -14,6 +14,7 @@ import { DateDePipe } from '../../shared/pipes/date-de.pipe';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RouteHelperService } from '../../core/services/route-helper.service';
+import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-home',
@@ -34,9 +35,9 @@ import { RouteHelperService } from '../../core/services/route-helper.service';
             <div class="hero-meta">
               <span>{{ featured()!.author.name }}</span>
               <span class="sep">&middot;</span>
-              <span>{{ featured()!.publishedDate | dateDe }}</span>
+              <span>{{ featured()!.publishedDate | dateDe:langService.currentLang() }}</span>
               <span class="sep">&middot;</span>
-              <span>{{ featured()!.readingTimeMinutes | readingTime }}</span>
+              <span>{{ featured()!.readingTimeMinutes | readingTime:langService.currentLang() }}</span>
             </div>
             <a [routerLink]="routeHelper.articleUrl(featured()!.slug)" class="hero-cta">{{ 'home.readArticle' | translate }}</a>
           </div>
@@ -185,6 +186,7 @@ export class HomeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private translate = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
+  langService = inject(LanguageService);
   routeHelper = inject(RouteHelperService);
 
   featured = signal<ArticleList | null>(null);

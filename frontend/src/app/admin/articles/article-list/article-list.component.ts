@@ -9,6 +9,7 @@ import { ArticleList } from '../../../core/models/article.model';
 import { Category } from '../../../core/models/category.model';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { DateDePipe } from '../../../shared/pipes/date-de.pipe';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-article-list',
@@ -82,7 +83,7 @@ import { DateDePipe } from '../../../shared/pipes/date-de.pipe';
                 </td>
                 <td><span class="cat-pill" [style.color]="a.category.color">{{ a.category.emoji }} {{ a.category.displayName }}</span></td>
                 <td>{{ a.author.name }}</td>
-                <td>{{ a.publishedDate | dateDe }}</td>
+                <td>{{ a.publishedDate | dateDe:langService.currentLang() }}</td>
                 <td class="actions">
                   <a [routerLink]="['/admin/beitraege', a.id, 'bearbeiten']" class="action-btn">{{ 'admin.articleList.edit' | translate }}</a>
                   <button class="action-btn danger" (click)="deleteArticle(a.id)">{{ 'admin.articleList.delete' | translate }}</button>
@@ -164,6 +165,7 @@ export class ArticleListComponent implements OnInit {
   private articleService = inject(ArticleService);
   private categoryService = inject(CategoryService);
   private translate = inject(TranslateService);
+  langService = inject(LanguageService);
 
   articles = signal<ArticleList[]>([]);
   categories = signal<Category[]>([]);

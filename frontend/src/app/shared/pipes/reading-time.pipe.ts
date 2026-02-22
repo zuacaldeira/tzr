@@ -1,12 +1,8 @@
-import { Pipe, PipeTransform, inject } from '@angular/core';
-import { LanguageService } from '../../core/services/language.service';
+import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'readingTime', standalone: true, pure: false })
+@Pipe({ name: 'readingTime', standalone: true, pure: true })
 export class ReadingTimePipe implements PipeTransform {
-  private langService = inject(LanguageService);
-
-  transform(minutes: number): string {
-    const lang = this.langService.currentLang();
+  transform(minutes: number, lang: string = 'de'): string {
     const min = !minutes || minutes <= 1 ? 1 : minutes;
     switch (lang) {
       case 'pt': return `${min} min. de leitura`;
